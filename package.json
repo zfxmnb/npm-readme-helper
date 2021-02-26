@@ -2,7 +2,7 @@
 	"name": "npm-readme-helper",
 	"displayName": "npm readme helper",
 	"description": "markdown preview and npm dependencies tips",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"publisher": "zengfanxing",
 	"engines": {
 		"vscode": "^1.53.0"

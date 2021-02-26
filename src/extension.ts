@@ -59,26 +59,26 @@ export function activate(context: vscode.ExtensionContext) {
 							try {
 								content = JSON.parse(fs.readFileSync(destPath, { encoding: 'utf-8' }));
 								commentCommandUri = vscode.Uri.parse(`command:Commands.dependency.view.readme?${encodeURIComponent(JSON.stringify([workDir, content.name]))}`);
-							} catch (err) {
-								return new vscode.Hover('Error');
-							}
+							} catch (err) {}
 							
 							let versions = [];
 							try {
 								versions = JSON.parse(childProcess.execSync(`npm view ${packageName} versions --json`, { encoding: 'utf8', maxBuffer: 50 * 1024 * 1024 }).toString().replace(/\n|\s/g, ''));
 							} catch (err) {}
 
-							const infoMD = new vscode.MarkdownString(`* **名称**：${content.name}\n* **版本**：${content.version}\n* **许可协议**：${content.license} \n`);
+							const infoMD = new vscode.MarkdownString(`* **名称**：${content.name}\n* **描述**：${content.description}\n* **版本**：${content.version}\n* **许可协议**：${content.license} \n`);
 							const versionMD = new vscode.MarkdownString(versions.reduce((p: string, version: string) => {
-								return `${p}[${version}](https://www.npmjs.com/package/${content.name}/v/${version}) |`;
-							}, '| '));
-							const actionsMD = new vscode.MarkdownString(`[NPM](https://www.npmjs.com/package/${content.name}) ｜ [预览README](${commentCommandUri})`);
+								return `${p} ${ p ? '|' : '' } [${version}](https://www.npmjs.com/package/${content.name}/v/${version})`;
+							}, '') || '未找到历史版本');
+							const actionsMD = new vscode.MarkdownString(`[NPM官网](https://www.npmjs.com/package/${content.name}) ｜ [预览README](${commentCommandUri})`);
 							actionsMD.isTrusted = true;
 							return new vscode.Hover([
 								infoMD,
 								actionsMD,
 								versionMD
 							]);
+						} else {
+							return new vscode.Hover([new vscode.MarkdownString(`[未找到 ${packageName} 模块](https://www.npmjs.com/package/${packageName})`)]);
 						}
 					}
 				}
