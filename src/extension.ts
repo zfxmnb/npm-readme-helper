@@ -4,6 +4,24 @@ import * as fs from 'fs';
 const marked  = require('marked');
 const childProcess = require('child_process');
 
+/**
+ * 预览markdown
+ * @param readmeText md
+ * @param moduleName 模块名
+ */
+const previewMarkdown = (readmeText: string, moduleName: string = '') => {
+	// 创建webview
+	const panel = vscode.window.createWebviewPanel(
+		'testWebview', // viewType
+		`${moduleName}/README.md`, // 视图标题
+		vscode.ViewColumn.Beside, // 显示在编辑器的哪个部位
+		{
+			retainContextWhenHidden: true, // webview被隐藏时保持状态，避免被重置
+		}
+	);
+	panel.webview.html = marked(readmeText);
+};
+
 export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.concat([
 		vscode.languages.registerDefinitionProvider(['json'], {
@@ -68,43 +86,16 @@ export function activate(context: vscode.ExtensionContext) {
 		}),
 		vscode.commands.registerCommand('Commands.dependency.readme.extension', ({ fsPath }) => {
 			const readmeText = fs.readFileSync(fsPath, { encoding: 'utf-8' });
-			// 创建webview
-			const panel = vscode.window.createWebviewPanel(
-				'testWebview', // viewType
-				`README.md`, // 视图标题
-				vscode.ViewColumn.Beside, // 显示在编辑器的哪个部位
-				{
-					retainContextWhenHidden: true, // webview被隐藏时保持状态，避免被重置
-				}
-			);
-			panel.webview.html = marked(readmeText);
+			readmeText && previewMarkdown(readmeText);
 		}),
 		vscode.commands.registerCommand('Commands.dependency.readme', () => {
 			const readmeText = vscode.window.activeTextEditor?.document.getText();
-			// 创建webview
-			const panel = vscode.window.createWebviewPanel(
-				'testWebview', // viewType
-				`README.md`, // 视图标题
-				vscode.ViewColumn.Beside, // 显示在编辑器的哪个部位
-				{
-					retainContextWhenHidden: true, // webview被隐藏时保持状态，避免被重置
-				}
-			);
-			panel.webview.html = marked(readmeText);
+			readmeText && previewMarkdown(readmeText);
 		}),
 		vscode.commands.registerCommand('Commands.dependency.view.readme', (workDir, packageName) => {
 			const readmePath = `${workDir}/node_modules/${packageName}/README.md`;
 			const readmeText = fs.readFileSync(readmePath, { encoding: 'utf-8' });
-			// 创建webview
-			const panel = vscode.window.createWebviewPanel(
-				'testWebview', // viewType
-				`${packageName}/README.md`, // 视图标题
-				vscode.ViewColumn.Beside, // 显示在编辑器的哪个部位
-				{
-					retainContextWhenHidden: true, // webview被隐藏时保持状态，避免被重置
-				}
-			);
-			panel.webview.html = marked(readmeText);
+			readmeText && previewMarkdown(readmeText, packageName);
 		})
 	]);
 }
